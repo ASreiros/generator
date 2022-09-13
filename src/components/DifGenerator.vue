@@ -43,8 +43,8 @@
                 </div> 
             </div>  
         </div>
-        <div class="info-block">
-
+        <div id="info-block" class="info-block">
+            
         </div>
         <div>
             <SmallButton @clicked="calculate" text="Calculate diffculty"></SmallButton>
@@ -54,6 +54,7 @@
 </template>
 
 <script>
+
 import Head from './parts/Head.vue';
 import SmallButton from './parts/SmallButton.vue';
     export default {
@@ -65,9 +66,9 @@ import SmallButton from './parts/SmallButton.vue';
         opponentLines:1,
         playerE:[0,25,50,75,125,250,300,350,450,550,600,800,1000,1100,1250,1400,1600,2000,2100,2400,2800],
         playerM:[0,50,100,150,250,500,600,750,900,1100,1200,1600,2000,2200,2500,2800,3200,3900,4200,4900,5700],
-        PlayerH:[0,75, 150, 225, 375, 750, 900, 1100, 1400, 1600, 1900, 2400, 3000, 3400, 3800, 4300, 4800, 5900, 6300, 7300, 8500],
+        playerH:[0,75, 150, 225, 375, 750, 900, 1100, 1400, 1600, 1900, 2400, 3000, 3400, 3800, 4300, 4800, 5900, 6300, 7300, 8500],
         playerD:[0, 100, 200, 400, 500, 1100, 1400, 1700, 2100, 2400, 2800, 3600, 4500, 5100, 5700, 6400, 7200, 8800, 9500, 10900, 12700],
-        playerTH:[0, 150, 300, 600, 750, 1650, 2100, 2550, 3150, 3600, 4200, 5400, 6750, 7650, 8550, 9600, 10800, 13200, 14250, 16350, 19050],
+        playerEP:[0, 150, 300, 600, 750, 1650, 2100, 2550, 3150, 3600, 4200, 5400, 6750, 7650, 8550, 9600, 10800, 13200, 14250, 16350, 19050],
         cr:{
             "0":10,
             "1/8":25,
@@ -103,7 +104,9 @@ import SmallButton from './parts/SmallButton.vue';
             "28":120000,
             "29":137000,
             "30":155000,
-        }
+        },
+
+        multiplier:[0,1,1.5,2,2,2,2,2.5,2.5,2.5,2.5,3,3,3,3,4]
       }
     },
 
@@ -131,18 +134,74 @@ import SmallButton from './parts/SmallButton.vue';
         calculate(){
             let error = "";
             let pnrArr =  document.querySelectorAll('#pnr')
-             let pnr = [];
+            let pnr = [];
             pnrArr.forEach(n=>{
                 const number = Number(n.value);
-                if ((typeof(number)==="number")&&(number >= 0)&&(Math.floor(number)===number)&&(number<11)) {
+                if ((typeof(number)==="number")&&(number > 0)&&(Math.floor(number)===number)&&(number<11)) {
                     pnr.push(number)
-            } else{
-                error = `Please enter number of players between 0 and 10 per line. Please enter positive, full number of players. Number of players ${number} is incorrect.`
-            }
+                } else{
+                error += `<p>Please enter number of players between 1 and 10 per line. Please enter positive, full number of players. Number of players ${number} is incorrect.</p>` 
+                }
+            })  
 
-            
+            let plvlArr =  document.querySelectorAll('#plvl')
+            let plvl = [];
+            plvlArr.forEach(n=>{
+                const number = Number(n.value);
+                if ((typeof(number)==="number")&&(number > 0)&&(Math.floor(number)===number)&&(number<20)) {
+                    plvl.push(number)
+            } else{
+                error += `<p>Please enter lvl of players between 1 and 20. Please enter positive, full number as lvl.  ${number} lvl is incorrect.<p>` 
+            }
             })
-          console.log(pnr);
+
+            let onrArr =  document.querySelectorAll('#onr')
+            let onr = [];
+            onrArr.forEach(n=>{
+                const number = Number(n.value);
+                if ((typeof(number)==="number")&&(number > 0)&&(Math.floor(number)===number)&&(number<51)) {
+                    onr.push(number)
+                } else{
+                error += `<p>Please enter number of opponents between 1 and 50 per line. Please enter positive, full number of opponents. Number of opponents ${number} is incorrect.</p>` 
+                }
+            })
+
+            let ocrArr =  document.querySelectorAll('#ocr')
+            let ocr = [];
+            ocrArr.forEach(n=>{
+                if (this.cr[n.value]) {
+                    ocr.push(this.cr[n.value])
+                } else{
+                error += `<p>Please enter valid CR. Examples of valid CR are 1/8, 1/4, 1/2, 1, 2, 3, ... 30. CR ${n.value} is incorrect.</p>` 
+                }
+            })
+
+            if(error === ""){
+
+                let treshold ={
+                    easy:0,
+                    medium:0,
+                    hard:0,
+                    deadly:0,
+                    epic:0
+                }
+
+                for (let i = 0; i < plvl.length; i++)  {
+                    treshold.easy += this.playerE[plvl[i]]*pnr[i];
+                    treshold.medium += this.playerM[plvl[i]]*pnr[i];
+                    treshold.hard += this.playerH[plvl[i]]*pnr[i];
+                    treshold.deadly += this.playerD[plvl[i]]*pnr[i];
+                    treshold.epic += this.playerEP[plvl[i]]*pnr[i];
+                }
+                console.log(pnr);
+                console.log(plvl);
+                console.log(ocr);
+                console.log(onr);
+                console.log(treshold);
+            } else{
+                document.querySelector('#info-block').innerHTML = error;
+            }
+          
         }
     }
 
@@ -152,6 +211,7 @@ import SmallButton from './parts/SmallButton.vue';
 <style lang="scss" scoped>
     .generator-df{
         display: flex;
+        flex-wrap: wrap;
         flex-direction: column;
         width: 100%;
         justify-content: flex-start;
@@ -167,6 +227,8 @@ import SmallButton from './parts/SmallButton.vue';
         display: flex;
         flex-direction: row;
         justify-content:space-around;
+        flex-wrap: wrap;
+        gap: 20px;
 
     }
 
