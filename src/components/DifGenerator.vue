@@ -175,6 +175,7 @@ import SmallButton from './parts/SmallButton.vue';
                 error += `<p>Please enter valid CR. Examples of valid CR are 1/8, 1/4, 1/2, 1, 2, 3, ... 30. CR ${n.value} is incorrect.</p>` 
                 }
             })
+            let info = "";
 
             if(error === ""){
 
@@ -193,15 +194,68 @@ import SmallButton from './parts/SmallButton.vue';
                     treshold.deadly += this.playerD[plvl[i]]*pnr[i];
                     treshold.epic += this.playerEP[plvl[i]]*pnr[i];
                 }
+
+                let expBasic = 0;
+                let nrOfOpponents = 0;
+                
+                for (let i = 0; i < ocr.length; i++) {
+                    expBasic += ocr[i] * onr[i];
+                    nrOfOpponents += onr[i];
+                }
+
+                let multpl= 4;
+
+                if(nrOfOpponents < 16){
+                    multpl= this.multiplier[nrOfOpponents]
+                }
+
+                let expMultiple = expBasic * multpl;
+                let danger = "";
+
+                if(expMultiple < treshold.easy){
+                    danger = "trivial"
+                }
+                if(expMultiple > treshold.easy){
+                    danger = "easy"
+                }
+                if(expMultiple > treshold.medium){
+                    danger = "medium"
+                }
+                if(expMultiple > treshold.hard){
+                    danger = "hard"
+                }
+                if(expMultiple > treshold.deadly){
+                    danger = "deadly"
+                }
+                if(expMultiple > treshold.epic){
+                    danger = "impossible"
+                }
+
+                info = `<p> Treshold for this party are following:</p>
+                <ul>
+                    <li>Easy difficulty:${treshold.easy} exp</li>
+                    <li>Medium difficulty:${treshold.medium} exp</li> 
+                    <li>Hard difficulty:${treshold.hard} exp</li> 
+                    <li>Deadly difficulty:${treshold.deadly} exp</li>
+                    <li>Imposible difficulty:${treshold.epic} exp</li>          
+                </ul>
+                <p>This opponents exp value ${expBasic}.</p>
+                <p>This opponents exp value after adjustment for size ${expMultiple}.</p>
+                <p>This skirmish final difficulty is  <span style="color:red; text-transform:uppercase">${danger}</span>.</p>
+                
+                `
+
                 console.log(pnr);
                 console.log(plvl);
                 console.log(ocr);
                 console.log(onr);
                 console.log(treshold);
+                console.log(expBasic);
+                console.log(expMultiple);
             } else{
-                document.querySelector('#info-block').innerHTML = error;
+                info = error;
             }
-          
+            document.querySelector('#info-block').innerHTML = info;
         }
     }
 
